@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>websocket</title>
+	<link rel="stylesheet" href="">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+	<form id="myForm">
+		<select id="rooms">
+			<option value="room-1">room1</option>
+			<option value="room-2">room2</option>
+		</select>
+		<input type="text" id="name">
+		<input type="text" id="msg">
+		<input type="submit" value="send">
+	</form>
+	<ul id="logs">
+	</ul>
+	<div id="news"></div>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		$(function(){
+			let chat = io.connect('http://192.168.33.10:1337/chat');
+			let news = io.connect('http://192.168.33.10:1337/news');
+
+			$('#myForm').submit(function(e){
+				e.preventDefault()
+				chat.json.emit('emit_from_client',{
+					room: $('#rooms').val(),
+					msg: $('#msg').val()
+				})
+				$('#msg').val('').focus()
+			})
+			chat.on('emit_from_server',function(data){
+				$('#logs').append($('<li>').text(data))
+			})
+			news.on('emit_from_server', function(data){
+				$('#news').text(data)
+			})
+		})
+	</script>
+</body>
+</html>
